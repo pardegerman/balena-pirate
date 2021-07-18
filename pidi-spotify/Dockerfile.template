@@ -1,0 +1,20 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.7.9-buster-run
+
+COPY pip.conf /etc
+
+WORKDIR /tmp
+RUN install_packages git \
+    libjbig0 liblcms2-2 libopenjp2-7 libtiff5 libwebp6 libwebpdemux2 libwebpmux3 \
+    libxcb1 libjpeg62-turbo libfreetype6 libatlas3-base libgfortran5 \
+    libasound2 && \
+    pip install --upgrade pip wheel && \
+    pip install numpy spidev rpi.gpio pidi_display_st7789 spotipy configargparse
+
+RUN git clone https://github.com/pimoroni/pidi-spotify && \
+    ( cd pidi-spotify && python3 setup.py install ) && \
+    rm -r pidi-spotify
+
+WORKDIR /app
+
+ENTRYPOINT ["/usr/local/bin/python3"]
+CMD ["/usr/local/bin/pidi_spotify"]
